@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="og:url" content="http://holidayengine.org/" />
+<meta property="og:title" content="The Jerry Woods Holiday Engine" />
+<meta property="og:description" content="The Jerry Woods Holiday Engines with Santa Claus visit neighborhoods in Maple 
+Valley and Covington Washington the first three weekends of December.  This is a great family event that helps support local
+Food Banks.  Check the website for more information." />
+<meta property="og:image" content="http://holidayengine.org/images/jerry_food_drive_logo4.png" />
+
+
+<link rel="stylesheet" type="text/css" href="he2019.css" />
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+  integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+  crossorigin="anonymous"></script>
+    
+<script type="text/javascript">
+
+    var expanded = false;
+    var hb = "./images/hamburger_blk.gif";
+    var x = "./images/x5.gif"
+
+</script>
+
+<style></style>
+</head>
+<body>
+
+<div id="view-container">
+
+    <div id="mm-container"><a href="index.html"><h2>Jerry Woods Holiday Engine</h2></a>
+        <img id="hamburger" src="./images/hamburger_blk.gif" />
+    </div>
+
+    <div id="container-nav">
+        <a href="index.html"><img class="logo" src="./images/jerry_food_drive_logo4.png"  /></a>
+
+        <div class="navbar">
+            <a href="track.html">Track Santa</a>
+            <a href="sponsors.html">Sponsors</a>
+            <a href="http://www.maplevalleyfoodbank.org/" target="_blank">Maple Valley Foodbank</a>
+            <a id="a-mobile-routes" href="routes.html">Routes</a> <!-- mobile only-->
+            <div class="drop-container"> <!-- desktop only-->
+                <a href="routes.html" class="drop-a">Routes &#x25BC;</a>
+                <div class="drop-box">
+                    <a href="routes-covington.html">Covington Routes</a>
+                    <a href="routes-mv.html">Maple Valley Routes</a>
+                </div>
+            </div> 
+        </div>
+    </div><!-- container-nav -->
+    <div id="container-body">
+        <h3>Welcome to the 2020 Jerry Woods Holiday Engine!</h3>
+        <p>Santa will be visiting neighborhoods this year in the Maple Valley and Covington areas with local Scouts, school, and other 
+        youth groups to collect food and donations for the Maple Valley Food Bank.  If you would like to make a donation before the 
+        Holiday Engines appear in your neighborhood, you can visit the <a href="http://www.maplevalleyfoodbank.org/" 
+                                                                            target="_blank">Maple Valley Food Bank</a> online and do so now.  Thank You!</p>
+
+        <p>The Holiday Engines will be out and about for three Fridays and Saturdays starting December 4th.  Check 
+        the <a href="routes.html">routes</a> page to determine if your neighborhood is on the list of those to be visited, and if so, when.  On the night 
+        that you want to follow the Holiday Engines, check back here at the <a href="track.html">Track Engines</a> page to see where the Holiday Engines
+        are in near real time.</p>
+
+        <p>The holiday engines with Santas' helpers will again be carrying a card machine this year so that if you like, you can donate 
+        to the food bank using your debit or credit card.  The same as prior years, a cash boot will be available for donations as well.  
+        Thank You!</p>
+
+        <p>If you are unable to participate in the fun on those evenings, you can still leave food at your door for local school, sports, or scout groups 
+        to pickup.  Our helpers will be visiting neighborhoods the week prior to the Engines to hand out fliers and bags reminding community members 
+        of the event.  If you decide to leave any food on your front porch or step, our helpers that visit the neighborhoods with the Holiday 
+        Engines will be sure to pick it up.</p>
+
+        <p>Finally, if you are a part of a youth organization, i.e. scouts or a sports team, and would like to help us with 
+        the Holiday Engine as we collect food in local neighborhoods, please reach out to us 
+        at <a href="mailto:signup@holidayengine.org">signup@holidayengine.org</a>.</p>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#hamburger").click(function(){
+            if (expanded) {
+                $("#container-nav").hide();
+                $("#hamburger").attr("src",hb);
+                expanded = false;
+            }
+            else {
+                $("#container-nav").show();
+                $("#hamburger").attr("src",x);
+                expanded = true;
+            }
+        }); 
+    });    
+</script>
+
+
+</body>
+</html>

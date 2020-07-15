@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="he2019.css" />
+<script
+  src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+  integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+  crossorigin="anonymous"></script>
+    
+<script type="text/javascript">
+
+    var expanded = false;
+    var hb = "./images/hamburger_blk.gif";
+    var x = "./images/x5.gif"
+
+</script>
+
+<style></style>
+</head>
+<body>
+
+<div id="view-container">
+
+    <div id="mm-container"><a href="index.html"><h2>Jerry Woods Holiday Engine</h2></a>
+        <img id="hamburger" src="./images/hamburger_blk.gif" />
+    </div>
+
+    <div id="container-nav">
+        <a href="index.html"><img class="logo" src="./images/jerry_food_drive_logo4.png"  /></a>
+
+        <div class="navbar">
+            <a href="track.html">Track Santa</a>
+            <a href="sponsors.html">Sponsors</a>
+            <a href="http://www.maplevalleyfoodbank.org/" target="_blank">Maple Valley Foodbank</a>
+            <a id="a-mobile-routes" href="routes.html">Routes</a> <!-- mobile only-->
+            <div class="drop-container"> <!-- desktop only-->
+                <a href="routes.html" class="drop-a">Routes &#x25BC;</a>
+                <div class="drop-box">
+                    <a href="routes-covington.html">Covington Routes</a>
+                    <a href="routes-mv.html">Maple Valley Routes</a>
+                </div>
+            </div> 
+        </div>
+    </div><!-- container-nav -->
+    <div id="container-body">
+
+        <h2>Our Sponsors</h2>
+    
+        <p>The Jerry Woods Holiday Engine would be no where near the success it is without the help and support of its volunteers and sponsors.  Those sponsors that made
+        the Holiday Engine possible include ...</p>
+
+        <!-- Sponsor Names / Logos -->
+
+        <p>Thank You!</p>
+
+    </div>
+
+</div>
+    
+    
+    
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#hamburger").click(function(){
+            if (expanded) {
+                $("#container-nav").hide();
+                $("#hamburger").attr("src",hb);
+                expanded = false;
+            }
+            else {
+                $("#container-nav").show();
+                $("#hamburger").attr("src",x);
+                expanded = true;
+            }
+        }); 
+    });    
+</script>
+    
+    
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27467285-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+</script>
+
+
+</body>
+</html>
+    
+		   

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="he2019.css" />
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+  integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+  crossorigin="anonymous"></script>
+
+<script src="https://maps.google.com/maps/api/js?v=3&key=[KEY-VALUE-HERE]"></script>
+
+<script type="text/javascript" src="./location/engine1.js" id="santa_js"></script>
+<script type="text/javascript" src="./location/engine2.js" id="sparky_js"></script>
+<script type="text/javascript" src="./location/engine3.js" id="covington_js"></script>
+<script type="text/javascript" src="js/neighborhoods2020.js"></script>
+
+<!--<script type="text/javascript" src="./js/trackcrumbs.js"></script>-->
+<script type="text/javascript" src="js/trackcrumbs-min.js"></script>
+
+<script type="text/javascript">
+
+    // mobile menu
+    let expanded = false;
+    let hb = "./images/hamburger_blk.gif";
+    let x = "./images/x5.gif";
+    // end mobile menu
+
+    $(document).ready(function(){
+        
+        uniqueID = "?d=" + Date.now();
+        
+        if ($("#container-nav").css("display") == "none") {
+            // Mobile Display
+            santaImage = new google.maps.MarkerImage('./images/santa4.png',
+                    new google.maps.Size(60, 80),
+                    new google.maps.Point(0,0),
+                    new google.maps.Point(0, 80));
+            crumbImages.push(new google.maps.MarkerImage('./images/crumb1.png' + uniqueID,
+                    //new google.maps.Size(60, 80),
+                    new google.maps.Size(14, 14),
+                    new google.maps.Point(0,0),
+                    new google.maps.Point(0, 14)));
+            crumbImages.push(new google.maps.MarkerImage('./images/crumb2.png' + uniqueID,
+                    //new google.maps.Size(60, 80),
+                    new google.maps.Size(14, 14),
+                    new google.maps.Point(0,0),
+                    new google.maps.Point(0, 14)));
+            crumbImages.push(new google.maps.MarkerImage('./images/crumb3.png' + uniqueID,
+                    //new google.maps.Size(60, 80),
+                    new google.maps.Size(14, 14),
+                    new google.maps.Point(0,0),
+                    new google.maps.Point(0, 14)));
+        }
+        else {
+            // Desktop display
+            santaImage = new google.maps.MarkerImage('./images/santa4.png',
+                    new google.maps.Size(30, 40),
+                    new google.maps.Point(0,0),
+                    new google.maps.Point(0, 40)); 
+            crumbImages.push(new google.maps.MarkerImage('./images/crumb1.png' + uniqueID,
+                    //new google.maps.Size(30, 40),
+                    new google.maps.Size(14, 14),
+                    new google.maps.Point(0, 0),
+                    new google.maps.Point(0, 14)));
+            crumbImages.push(new google.maps.MarkerImage('./images/crumb2.png' + uniqueID,
+                    //new google.maps.Size(30, 40),
+                    new google.maps.Size(14, 14),
+                    new google.maps.Point(0, 0),
+                    new google.maps.Point(0, 14)));
+            crumbImages.push(new google.maps.MarkerImage('./images/crumb3.png' + uniqueID,
+                    //new google.maps.Size(30, 40),
+                    new google.maps.Size(14, 14),
+                    new google.maps.Point(0, 0),
+                    new google.maps.Point(0, 14)));
+        }
+
+
+        // $("#hamburger").click(function(){
+        $("#hamburger").on("click", function(){
+            if (expanded) {
+                $("#container-nav").hide();
+                $("#hamburger").attr("src",hb);
+                expanded = false;
+            }
+            else {
+                $("#container-nav").show();
+                $("#hamburger").attr("src",x);
+                expanded = true;
+            }
+        });
+
+        // subtract height of paragraph above map canvas
+        $("#map_canvas").height($("#container-body").height() - $('.body-nav').height() - 50);
+
+        $("#track-both").on("click", function(){
+            $("#track-both, #track-1, #track-2, #track-3").removeClass("route route-selected");
+            $("#track-1, #track-2, #track-3").addClass("route");
+            $("#track-both").addClass("route-selected");
+
+            clearCrumbs(3);
+
+            initRecentLocations(1);
+            initRecentLocations(2);
+            
+            if (showEngines == 3) {
+                loadCrumbsFile(1);
+                loadCrumbsFile(2);
+            } else if (showEngines == 1) {
+                loadCrumbsFile(2);
+            } else if (showEngines == 2) {
+                loadCrumbsFile(1);
+            }
+
+            showEngines = 0;
+            trackEngines(false);
+        });
+
+        $("#track-1").on("click", function(){
+            $("#track-both, #track-1, #track-2, #track-3").removeClass("route route-selected");
+            $("#track-both, #track-2, #track-3").addClass("route");
+            $("#track-1").addClass("route-selected");
+
+            clearCrumbs(2);
+            clearCrumbs(3);
+            
+            initRecentLocations(1);
+            if (showEngines != 0 && showEngines != 1) { // (3) Make sure not loading crumbs twice for this engine
+                loadCrumbsFile(1);
+            }
+            showEngines = 1;
+            trackEngines(false);
+        });
+
+        $("#track-2").on("click", function(){
+            $("#track-both, #track-1, #track-2, #track-3").removeClass("route route-selected");
+            $("#track-both, #track-1, #track-3").addClass("route");
+            $("#track-2").addClass("route-selected");
+
+            clearCrumbs(1);
+            clearCrumbs(3);
+            
+            initRecentLocations(2);
+            if (showEngines != 0 && showEngines != 2) { // (3) Make sure not loading crumbs twice for this engine
+                loadCrumbsFile(2);
+            }
+            showEngines = 2;
+            trackEngines(false);
+        });
+
+        $("#track-3").on("click", function(){
+            $("#track-both, #track-1, #track-2, #track-3").removeClass("route route-selected");
+            $("#track-both, #track-1, #track-2").addClass("route");
+            $("#track-3").addClass("route-selected");
+
+            clearCrumbs(1);
+            clearCrumbs(2);
+            
+            initRecentLocations(3);
+            if (showEngines != 3) {
+                loadCrumbsFile(3);
+            }
+            showEngines = 3;
+            trackEngines(false);
+        });
+
+        trackEngines(true);
+        setInterval(trackEngines, 3500, false); 
+        loadCrumbsFile(1); 
+        loadCrumbsFile(2);
+
+    });
+</script>
+</head>
+
+<body>
+
+<div id="view-container">
+
+    <div id="mm-container"><a href="index.html"><h2>Jerry Woods Holiday Engine</h2></a>
+        <img id="hamburger" src="./images/hamburger_blk.gif" />
+    </div>
+
+    <div id="container-nav">
+        <a href="index.html"><img class="logo" src="./images/jerry_food_drive_logo4.png"  /></a>
+
+        <div class="navbar">
+            <a href="track.html">Track Santa</a>
+            <a href="sponsors.html">Sponsors</a>
+            <a href="http://www.maplevalleyfoodbank.org/" target="_blank">Maple Valley Foodbank</a>
+            <a id="a-mobile-routes" href="routes.html">Routes</a> <!-- mobile only-->
+            <div class="drop-container"> <!-- desktop only-->
+                <a href="routes.html" class="drop-a">Routes &#x25BC;</a>
+                <div class="drop-box">
+                    <a href="routes-covington.html">Covington Routes</a>
+                    <a href="routes-mv.html">Maple Valley Routes</a>
+                </div>
+            </div> 
+        </div>
+    </div><!-- container-nav -->
+    <div id="container-body">
+
+        <!-- TRACK SANTA MAP -->
+        <p class="body-nav">
+            <a id="track-both" class="route-selected" href="#" style="padding-left: 2.5%;">Both MV Engines</a><a 
+            id="track-1" class="route" href="#">Engine 1</a>, <a id="track-2" class="route" 
+            href="#">Engine 2</a>, or in Covington <a id="track-3" class="route" href="#" style="padding-left: 0px;">Engine 3</a>
+        </p>
+
+        <div id="map_canvas"></div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    /* Google Analytics */
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27467285-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+</script> 
+
+</body>
+</html>
+

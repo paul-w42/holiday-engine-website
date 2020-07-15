@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+
+<title>Welcome to the Jerry Woods Holiday Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="keywords" content="Maple Valley Fire Engine, maple valley fire engine, holiday engine, Maple Valley Food Bank, MV Food Bank, MV fire,
+    Jerry Woods Holiday Engine, Jerry Woods Holiday Fire Engine, Holiday Engine, Maple Valley Engine, Maple Valley Holiday Engine, Maple Valley Christmas" />
+
+    <link rel="stylesheet" type="text/css" href="he2019.css" />
+
+    <script
+    src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+    crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+
+        var expanded = false;
+        var hb = "./images/hamburger_blk.gif";
+        var x = "./images/x5.gif"
+        
+
+    </script>
+
+</head>
+<body>
+
+    <div id="view-container">
+
+        <div id="mm-container"><a href="index.html"><h2>Jerry Woods Holiday Engine</h2></a>
+            <img id="hamburger" src="./images/hamburger_blk.gif" />
+        </div>
+    
+        <div id="container-nav">
+            <a href="index.html"><img class="logo" src="./images/jerry_food_drive_logo4.png"  /></a>
+    
+            <div class="navbar">
+                <a href="track.html">Track Santa</a>
+                <a href="sponsors.html">Sponsors</a>
+                <a href="http://www.maplevalleyfoodbank.org/" target="_blank">Maple Valley Foodbank</a>
+                <a id="a-mobile-routes" href="routes.html">Routes</a> <!-- mobile only-->
+                <div class="drop-container"> <!-- desktop only-->
+                    <a href="routes.html" class="drop-a">Routes &#x25BC;</a>
+                    <div class="drop-box">
+                        <a href="routes-covington.html">Covington Routes</a>
+                        <a href="routes-mv.html">Maple Valley Routes</a>
+                    </div>
+                </div> 
+            </div>
+        </div><!-- container-nav -->
+        <div id="container-body" >
+            <h3 class="center" style="font-size: 1.3em;">Please select from one of the following:</h3>
+           
+            <p class="center" style="font-size: 1.2em;"><a href="routes-covington.html">Covington Routes</a></p>
+            <p class="center" style="font-size: 1.2em;"><a href="routes-mv.html">Maple Valley Routes</a></p> 
+            <p class="center" style="width: 80%; margin-left: auto; margin-right: auto; margin-top: 2em; font-size: 1.1em;">To see a map displaying all of 
+                the neighborhoods we cover in Covington and Maple Valley <span style="font-weight: bold;">ON ONE PAGE</span>, click on one of the links 
+                below.</p>
+            <p class="center" style="font-size: 1.2em;"><a href="covington-maps.html">All Covington Neighborhoods</a></p>
+            <p class="center" style="font-size: 1.2em;"><a href="maplevalley-maps.html">All Maple Valley Neighborhoods</a></p>
+            
+        </div><!-- container -->
+    </div>
+
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+    $("#hamburger").click(function(){
+        if (expanded) {
+            $("#container-nav").hide();
+            $("#hamburger").attr("src",hb);
+            expanded = false;
+        }
+        else {
+            $("#container-nav").show();
+            $("#hamburger").attr("src",x);
+            expanded = true;
+        }
+    }); 
+    
+    var intervalVar;
+    
+    // DISABLE for now
+    // showBlink();
+    
+    // hideBlink, show Blink2
+    function hideBlink() {
+        $(".blink").hide();
+        $(".blink2").show();
+        intervalVar = setTimeout(showBlink, 1500);
+    }
+    
+    // showBlink, hide Blink2
+    function  showBlink() {
+        $(".blink2").hide();
+        $(".blink").show();
+        intervalVar = setTimeout(hideBlink, 3500);
+    }
+    
+    
+});
+
+</script>
+
+
+<script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27467285-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+
+
+</body>
+</html>
+

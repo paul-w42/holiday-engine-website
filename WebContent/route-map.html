@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="he2019.css" />
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+  integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+  crossorigin="anonymous"></script>
+  
+<script src="https://maps.google.com/maps/api/js?v=3&key=[KEY-VALUE-HERE]"></script>
+<script type="text/javascript" src="js/neighborhoods2020.js"></script>
+<script type="text/javascript" src="js/routes.js"></script>
+
+<script type="text/javascript">
+
+// mobile menu
+var expanded = false;
+var hb = "./images/hamburger_blk.gif";
+var x = "./images/x5.gif"
+// end mobile menu
+
+var neighborhoods;
+
+</script>
+</head>
+
+<body onload="initialize();">
+
+
+    <div id="view-container">
+
+        <div id="mm-container"><a href="index.html"><h2>Jerry Woods Holiday Engine</h2></a>
+            <img id="hamburger" src="./images/hamburger_blk.gif" />
+        </div>
+    
+        <div id="container-nav">
+            <a href="index.html"><img class="logo" src="./images/jerry_food_drive_logo4.png"  /></a>
+    
+            <div class="navbar">
+                <a href="track.html">Track Santa</a>
+                <a href="sponsors.html">Sponsors</a>
+                <a href="http://www.maplevalleyfoodbank.org/" target="_blank">Maple Valley Foodbank</a>
+                <a id="a-mobile-routes" href="routes.html">Routes</a> <!-- mobile only-->
+                <div class="drop-container"> <!-- desktop only-->
+                    <a href="routes.html" class="drop-a">Routes &#x25BC;</a>
+                    <div class="drop-box">
+                        <a href="routes-covington.html">Covington Routes</a>
+                        <a href="routes-mv.html">Maple Valley Routes</a>
+                    </div>
+                </div> 
+            </div>
+        </div><!-- container-nav -->
+        <div id="container-body">
+    
+            <!-- TRACK SANTA MAP -->
+            <p class="route" id="route-date"></p>
+            <div id="map_canvas"></div>
+    
+        </div>
+    </div>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+    $("#hamburger").on("click", function(){
+
+        if (expanded) {
+            $("#container-nav").hide();
+            $("#hamburger").attr("src",hb);
+            expanded = false;
+        }
+        else {
+            $("#container-nav").show();
+            $("#hamburger").attr("src",x);
+            expanded = true;
+        }
+    });
+    console.log("container_body.height(): " + $("container_body").height());
+    console.log(".body_nav.height(): " + $('.body_nav').height());
+
+    $("#map_canvas").height($("#container-body").height() - 50);
+});
+</script>
+
+<script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27467285-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,588 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+
+<title>Jerry Woods Holiday Engine - Routes Playback</title>
+    <meta http-equiv="keywords" content="Maple Valley Fire Engine, maple valley fire engine, holiday engine, Maple Valley Food Bank, MV Food Bank, MV fire,
+    Jerry Woods Holiday Engine, Jerry Woods Holiday Fire Engine, Holiday Engine, Maple Valley Engine, Maple Valley Holiday Engine, Maple Valley Christmas" />
+
+    <script src="https://maps.google.com/maps/api/js?v=3&key=[KEY-VALUE-HERE]"></script>
+    <script
+  src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+  integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+  crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="neighborhoods2020.js"></script>
+
+    <style>
+
+    html, body {
+        margin: 0px;
+        padding: 0px;
+        font-family: Tahoma, sans-serif;
+        }
+
+    html {
+        height: 1px;
+        height: 100%;
+    }
+
+    body {
+        /* background-color: #950000; */
+        height: 1px;
+        min-height: 100%;
+        }
+
+    #container {
+        position: relative;
+        /* was 950px, added 10px per side for border */
+        /*
+        left: -moz-calc((100% - 970px)/2);
+        left: -webkit-calc((100% - 970px)/2);
+        left: calc((100% - 970px)/2);
+        */
+        /* width: 950px; */
+        min-height: 100%;
+        background-color: white;
+        }
+
+
+    .route {
+        margin-left: 1em;
+    }
+
+    div#user_menu {
+        position: absolute;
+        right: 20px;
+        top: 0px;
+        }
+
+    ul.user_menu {
+        list-style-type: none;
+        text-align: center;
+        margin-right: 15px; /* closer to match left-margin of menu items */
+        }
+
+    ul.user_menu li {
+        display: inline;
+        margin-left: 35px;
+        }
+
+
+    ul.user_menu li a {
+        color: #3e7529;
+        font-weight: bold;
+        font-size: 0.9em;
+        text-decoration: none;
+        }
+
+
+    ul.user_menu li a:hover {
+        /* color: #950000; /* b50c34; */
+        font-weight: bold;
+        /* text-decoration: none; */
+        text-decoration: underline;
+        }
+
+    div#main_body {
+        position: relative;
+        height: 100%; /* required for maps */
+        min-height: 100%;
+        width: 100%;
+        margin-top: 35px;
+        padding: 0px;
+        }
+
+    p.route button {
+        margin-right: 15px;
+    }
+
+    #map_canvas {
+        top: 3px;
+
+        width: 96%;
+        margin-left: 2%;
+        border: 1px solid #3e7529;
+
+        /* height of top pic -- calc(175px + .5em); */
+        /* height of main menu bar -- 1.4em */
+        margin-top: 1em;
+
+        height: -moz-calc(100% - 175px - 6em);
+        height: -webkit-calc(100% - 175px - 6em);
+        height: calc(100% - 175px - 6em);
+        }
+
+        a.controls {
+            font-family: monospace;
+            font-weight: bold;
+            color: black;
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+
+        p#p_controls {
+            /* visibility: hidden; */
+        }
+
+    </style>
+
+
+	<script type="text/javascript">
+
+/*
+        1) Load directory of files
+        2) Parse into links
+        3) Load selected file, play back
+        4) Present controls / file specific information
+        5) Utilize route backgrounds for appropriate days
+*/
+        const crumbsLocation = "saved-crumbs/";    // location of directory & saved crumbs files (do not use leading ./ or interfers with directory parsing)
+        const crumbsDirectoryFile = "directory.json";
+        var crumbsDirectoryScript;
+        var directoryJSON;
+        var directoryEntry = new Object();
+        let stop = false;
+            // directoryEntry.url
+            // directoryEntry.engine
+            // directoryEntry.date
+
+	    var resetIfNoMarker = true;    // if there is no visible marker, center map and re-zoom to view
+	    var currentZoom = 13;
+	    var sMap;
+	    var latlng;
+	    var engineMarker;
+	    var imageTest;
+
+	    var arrayCount = 0;
+	    var arraySize = 0;
+	    var playstep = 1;      // play vs fast-forward
+	    var date;
+	    var interval;
+
+	    var santaImage;
+
+        /**
+         * presentMarker(lat, lon) - called once by initialize to present a place holder marker, then called
+         * by displayEngineTrack() to remove/present marker location as we progress through loaded crumbs track.
+         */
+        function presentMarker(lat, lon) {
+
+            // If markers exist, remove prior to adding new ones
+            if (engineMarker) {
+                engineMarker.setMap(null);
+                }
+
+            var shape = {
+                coord: [1, 1, 1, 20, 18, 20, 18 , 1],
+                type: 'poly'
+                };
+
+            var santaLatLng = new google.maps.LatLng(lat, lon);
+
+            engineMarker = new google.maps.Marker({
+                position: santaLatLng,
+                map: sMap,
+                icon: santaImage,
+                shape: shape,
+                title: 'Santa',
+                zIndex: 1
+                });
+
+            if (resetIfNoMarker) {
+            	if (offMap(sMap, engineMarker)) {
+                    reCenterMap(sMap, engineMarker);
+                    }
+                }
+            
+        }
+
+        /**
+         * displayPlaybackSpeed(speed) - takes an int value indicating speed to play crumbs track back at
+         * 
+         */
+        function displayPlaybackSpeed(speed) {
+            // Display new playback speed
+            if (speed == 0) {
+                $("#playbackSpeed").text("Playback Speed: Paused");
+            }
+            else if (speed == -1) {
+                $("#playbackSpeed").text("Playback Finished");
+            }
+            else {
+                $("#playbackSpeed").text("Playback Speed: " + speed.toString() + "x");
+            }
+        }
+
+        
+        function displayPlaybackTime(time) {
+            
+            if (time == 0) {
+                $("#playbackTime").text("------------");
+            }
+            else {
+                let date = new Date(time); 
+                let day = date.getUTCDay();
+                let dayOfWeek = "";
+                switch(day) {
+                    case 1: dayOfWeek =  "Sunday"; break;
+                    case 2: dayOfWeek =  "Monday"; break;
+                    case 3: dayOfWeek =  "Tuesday"; break;
+                    case 4: dayOfWeek =  "Wednesday"; break;
+                    case 5: dayOfWeek =  "Thursday"; break;
+                    case 6: dayOfWeek =  "Friday"; break;
+                    default: dayOfWeek =  "Saturday";
+                }
+                let displayTime = dayOfWeek + ", " + date.toLocaleTimeString();
+                $("#playbackTime").text(displayTime);
+            }
+
+        }
+
+        /**
+         * https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+         * https://www.sitepoint.com/delay-sleep-pause-wait/         * 
+         */
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        /**
+         * displayEngineTrack() - called when user selects a new crumbs file, and uses the crumbs value
+         * loaded in that selection to playback the engine track.
+         * NOTE: Android App gives us time in seconds since 1970, javascript measures in ms.
+         * https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+         * https://www.sitepoint.com/delay-sleep-pause-wait/
+         */
+        async function displayEngineTrack() {
+
+            // Display background for this engines routes
+            let date = new Date(crumbs[0]["time"] * 1000);
+            let year = date.getFullYear();
+            let month = date.getMonth() + 1;	// zero indexed, add 1
+            let day = date.getDate();
+            
+            // i.e. day = "2019127"
+            day = year.toString() + month.toString() + day.toString(); // + "-" + engineId;
+
+            engines = [];
+            engine = crumbs[0]["engine"];
+            if (engine == 3) {
+                engine = 4;             // On these routes, engine 3 is sat only route in mv, engine 4 is covington (known to others as 3)
+            }
+            engines.push(engine);
+
+            prepareMap(sMap, day, engines);
+            // End displaying map background for this engine
+
+
+            // lon, lat, time
+            const pauseTime = 500;
+            let markTime = 0;
+            let currentMarkTime = (crumbs[0]["time"] * 1000);       // base time to start at in ms (android gave us seconds)
+            let newMarkDelta = 0;
+            playstep = 0;
+
+            displayPlaybackSpeed(0);
+            displayPlaybackTime(currentMarkTime);
+            presentMarker(crumbs[0]["lat"], crumbs[0]["lon"]);  // display initial location
+
+            for (i = 1; i < crumbs.length; i++) {       // start at 2nd entry ...
+
+                let nextMarkTime = (crumbs[i]["time"] * 1000);   // time to test to (need ms), and then we continue to next item in loop
+
+                console.log("New entry, time delta to cover is " + ((nextMarkTime - currentMarkTime)/1000) + "s");
+                
+                // When currentMarkTime passes nextMarkTime, we move onto next iteration of loop.
+                while (currentMarkTime < nextMarkTime) {
+
+                    await sleep(pauseTime);
+                    
+                    newMarkDelta = playstep * pauseTime;    // calc time of progression, do each iteration in case playstep changes
+                    currentMarkTime += newMarkDelta;
+
+                    displayPlaybackTime(currentMarkTime);
+                    if (stop) {
+                        break;
+                    }
+                }
+
+                if (stop) {
+                    stop = false;
+                    break;
+                }
+                
+                presentMarker(crumbs[i]["lat"], crumbs[i]["lon"]);
+            }
+
+        }
+
+
+	    $(document).ready(function(){
+
+            $( "#viewRoute" ).click(function() {
+              playstep = 0;
+              resetMap();
+                // select id="route"
+              var url = $("select#route").val();
+              //url = "./" + url;
+
+              //console.log("Crumbs file location: " + $("select#route").val());
+              console.log("Crumbs URL: " + url);
+
+              $.getScript(url)
+                .done(function() {
+                    console.log("Crumb Entries: " + crumbs.length);
+                    console.log(crumbs[0]["engine"]); // 2
+                    console.log(crumbs[0]["lat"] + ", " + crumbs[0]["lon"]);    // 47.3943, -122.0445
+                    console.log(crumbs[1]); // {engine: "2", lat: 47.394, lon: -122.044, time: 1575683588}
+
+                    // ... cycle through, executing location on map
+
+                    displayEngineTrack();
+
+                });
+              
+            });   
+
+            // playstep
+            $("#pauseButton").click(function() {
+                playstep = 0;
+                displayPlaybackSpeed(playstep);
+            });
+
+            $("#playButton").click(function() {
+                playstep = 1;
+                displayPlaybackSpeed(playstep);
+            });
+
+            $("#ffButton").click(function() {
+                if (playstep == 0) {
+                    playstep = 1;
+                }
+                else {
+                    playstep = playstep * 2;
+                }
+                displayPlaybackSpeed(playstep);
+            });
+
+            $("#stopButton").click(function() {
+                playstep = 0;
+                stop = true;
+                displayPlaybackSpeed(-1);                  // stopped / finished
+                displayPlaybackTime(0);                    // clear display
+                resetMap();
+            });
+
+            loadDirectoryFile();
+
+	    	//console.log("document.ready()")
+            //console.log("loading santa images")
+
+    	    if ($("#main_menu_bar").css("display") == "none") {
+    	    	santaImage = new google.maps.MarkerImage('./images/santa4.png',
+    	                    new google.maps.Size(60, 80),
+    	                    new google.maps.Point(0,0),
+    	                    new google.maps.Point(0, 32));
+    	    }
+    	    else {
+        	    santaImage = new google.maps.MarkerImage('./images/santa4.png',
+        	                new google.maps.Size(30, 40),
+        	                new google.maps.Point(0,0),
+        	                new google.maps.Point(0, 32));
+            }
+            
+            initialize();
+	    });
+
+        // Return true if at least one of two markers is visible on map
+        function offMap(map, mark1) {
+            if (map) {   // We have an instantiated map
+                if (map.getBounds()) { // We have bounds on this map
+                   if (map.getBounds().contains(mark1.getPosition())) {
+                	   //console.log('mark1 on map');
+                	   return false;
+                   }
+                   else {
+                	   //console.log('no marker on map');
+                	   return true;
+                   }
+                }
+            }
+
+            return false;
+        }
+
+        // Recenter & rezoom map to display two visible markers.
+        function reCenterMap(map, marker1) {
+        	map.panTo(marker1.getPosition());
+        	if (map) {
+        		if (map.getBounds()) {
+		        	while (offMap(map, marker1)) {
+		        		map.setZoom(map.getZoom() - 1);
+		        	}
+        		}
+        	}
+        }
+
+        function resetMap() {
+
+            sMap = null;
+
+            var one_lat = 47.393969;
+            var one_lon = -122.044422;
+	    	
+	        if (!sMap) {
+		        var latlng = new google.maps.LatLng(one_lat, one_lon);
+				var myOptions = {
+				           zoom: currentZoom,
+				           center: latlng,
+				           mapTypeId: google.maps.MapTypeId.ROADMAP
+				           };
+				  sMap = new google.maps.Map(document.getElementById("map_canvas"),  myOptions);
+            }
+            
+            presentMarker(one_lat, one_lon);
+
+        }
+
+	    function initialize() {
+
+	    	// var latCount, lonCount, timeCount;
+	    	// lon, lat, time
+
+	    	if (sMap) {
+	    		currentZoom = sMap.getZoom();
+	    		latlng = sMap.getCenter();
+            }
+            /*
+            var one_lat = 47.393969;
+            var one_lon = -122.044422;
+	    	
+	        if (!sMap) {
+		        var latlng = new google.maps.LatLng(one_lat, one_lon);
+				var myOptions = {
+				           zoom: currentZoom,
+				           center: latlng,
+				           mapTypeId: google.maps.MapTypeId.ROADMAP
+				           };
+				  sMap = new google.maps.Map(document.getElementById("map_canvas"),  myOptions);
+			}
+            
+			presentMarker(one_lat, one_lon);
+            */
+            resetMap();
+
+            if (resetIfNoMarker) {
+            	if (offMap(sMap, engineMarker)) {
+                    reCenterMap(sMap, engineMarker);
+                }
+            }
+
+            // increment counters for next iteration
+            if (arrayCount >= (arraySize-1)) {
+            	// end of list, quit
+            	clearInterval(interval);
+            }
+            else {
+            	// continue
+                arrayCount += playstep;
+            }
+
+            // TODO: Display time text
+            //date = new Date(time[arrayCount])
+            //$("p#datetime").text(date.toLocaleString());
+	     }
+
+
+       
+
+        // 12-2019
+        function loadDirectoryFile() {
+            
+            // directoryEntry.url
+            // directoryEntry.engine
+            // directoryEntry.date
+
+            $.getJSON( (crumbsLocation + crumbsDirectoryFile), function( data ) {
+                var items = [];
+                $.each( data, function( key, val ) {
+                    //console.log(crumbsLocation);
+                    //console.log(val.length);
+                    var l = val.length;
+                    for (i = 0; i < l; i++) {
+                        
+                        var fullFileName = val[i]["file-name"]
+                        var fileName = fullFileName.split(crumbsLocation);
+                        //console.log("FILE NAME:");
+                        //console.log(fullFileName);
+
+                            // fileName[0] -- throw away
+                            // fileName[1] -- file name
+                        
+                        var baseName = fileName[1].split(".");  // i.e. 2019-12-13-17-12-2
+
+                        fullFileName = crumbsLocation + fileName[1];    // re-assign file-location to fullFileName
+                        //console.log("fileName[1]: " + fileName[1]);
+                        //console.log("fullFileName: " + fullFileName);
+
+                        var dates = baseName[0].split("-");
+                        
+                        //console.log(dates[1] + "/" + dates[2] + "/" + dates[0] + ", " + dates[3] + ":" + dates[4] + ", engine " + dates[5]);
+                        var optionText = "Engine " + dates[5] + ", " + dates[1] + "/" + dates[2] + "/" + dates[0];  // i.e. Engine 1, 12/13/2019
+                        
+                        $('#route').append(`<option value="${fullFileName}">${optionText}</option>`); 
+                    }
+                });
+            });
+
+        }
+
+
+	</script>
+</head>
+
+<body>
+<!--  <body onload="initialize(); pageRefresh({{timeout}})"> -->
+
+
+<div id="container" style="height: 100%;">
+
+    <p class="route" style="padding-top: 15px; font-size: 1.1em;">
+        Select Route: <select id="route" name="route"></select>
+        <input type="button" name="viewRoute" value="View Route" id="viewRoute" />
+    </p>
+
+
+
+    <div>
+        <span class="route" style="font-weight: bold;">Current time on Route: </span>
+        <span id="playbackTime"></span>
+    </div>
+
+    <!-- <p class="route">At 1x speed time is compressed approx 15:1.</p> -->
+    <div class="route" id="playbackSpeed" style="font-weight: bold;"></div>
+
+    <div class="route" style="padding-top: 10px;">
+        <button id="pauseButton">Pause</button>
+        <button id="playButton">Play</button>
+        <button id="ffButton">FF</button>
+        <button id="stopButton">Stop</button>
+    </div>
+
+    <div id="main_body" style="margin-top: 25px; padding-top: 25px;">
+                    <div id="map_canvas" style="height: -moz-calc(100% - 18m);
+                        height: -webkit-calc(100% - 18em);
+                        height: calc(100% - 18em);"></div>
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+</script>
+
+</body>
+</html>
